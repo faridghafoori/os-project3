@@ -11,6 +11,7 @@ using namespace std;
 
 #define INPUT_FILE "inputs.txt"
 #define WEIGHT_FILE "weights.txt"
+#define DEVIDE_NUMBER 32768
 
 struct Values {
 	int BIAS;
@@ -36,9 +37,9 @@ int string_to_int(string str) {
   return result;
 }
 
-vector<vector<int> > input_parser(vector<string> store_input) {
-	vector<vector<int> > int_inputs_table;
-	vector<int> row;
+vector<vector<double> > input_parser(vector<string> store_input) {
+	vector<vector<double> > int_inputs_table;
+	vector<double> row;
 	vector<vector<string> > inputs_table;
 	vector<string> temp;
 
@@ -58,6 +59,13 @@ vector<vector<int> > input_parser(vector<string> store_input) {
 	}
 
 
+	for(int i = 0; i < int_inputs_table.size(); i++) {
+		for(int j = 0; j < int_inputs_table[i].size(); j++) {
+			int_inputs_table[i][j] /= DEVIDE_NUMBER;
+		}
+	}
+
+
 	// INPUT CHECK 
 	// cout << "INPUTS : \n\n";
 	// for(int i = 0; i < int_inputs_table.size(); i++) {
@@ -72,13 +80,17 @@ vector<vector<int> > input_parser(vector<string> store_input) {
 	return int_inputs_table;
 }
 
-vector<int> weight_parser(vector<string> store_weight) {
-	vector<int> int_weight_values;
+vector<double> weight_parser(vector<string> store_weight) {
+	vector<double> int_weight_values;
 	vector<string> weights;
 	string a = store_weight[1].substr(1, store_weight[1].size()-2);
 	weights = split_string(a, ',');
 	for(int i = 0; i < weights.size(); i++) {
 		int_weight_values.push_back(string_to_int(weights[i]));
+	}
+
+	for(int i = 0; i < int_weight_values.size(); i++) {
+		int_weight_values[i] /= DEVIDE_NUMBER;
 	}
 
 
@@ -94,8 +106,8 @@ vector<int> weight_parser(vector<string> store_weight) {
 	return int_weight_values;
 }
 
-int bias_parser(string bias_value) {
-	int bias;
+double bias_parser(string bias_value) {
+	double bias;
 	string a = bias_value.substr(6, bias_value.size());
 	return bias = string_to_int(a);
 }
@@ -104,7 +116,7 @@ void *read_inputs(void* arg) {
 	ifstream input_file;
 	string line;
 	vector<string> store_input;
-	vector<vector<int> > number_inputs;
+	vector<vector<double> > number_inputs;
 
 	// struct Values *my_value = (struct Values*)values;
 
@@ -131,8 +143,8 @@ void *read_weights(void *arg) {
 	ifstream weight_file;
 	string line;
 	vector<string> store_weight;
-	int bias;
-	vector<int> weights;
+	double bias;
+	vector<double> weights;
 
 	weight_file.open(WEIGHT_FILE);
 	
@@ -147,7 +159,7 @@ void *read_weights(void *arg) {
 
 	weights = weight_parser(store_weight);
 
-	bias = bias_parser(store_weight[2]);
+	bias = bias_parser(store_weight[2]) / DEVIDE_NUMBER;
 
 	// WEIGHTS = weights;
 	// BIAS = bias;
