@@ -161,6 +161,9 @@ void *read_weights(void *arg) {
 
 void *middle_process(void *arg) {
 	cout << BIAS << endl;
+	// cout << arg << endl;
+	// int i;
+	// cout << i<< endl;
 }
 
 int main(int argc, char const *argv[]) {
@@ -183,14 +186,16 @@ int main(int argc, char const *argv[]) {
 	pthread_join(inputs_thread, NULL);
 	pthread_join(weights_thread, NULL);
 
+
+
 	for(int i = 0; i < n; i++) {
-		pthread_create(&middle_threads[i], NULL, middle_process, NULL);
+		pthread_create(&middle_threads[i], NULL, middle_process, (void *) &n);
 	}
 
 
-	// for(int i = 0; i < n; i++) {
-	// 	pthread_join(middle_threads[i], NULL);
-	// }
+	for(int i = 0; i < n; i++) {
+		pthread_join(middle_threads[i], NULL);
+	}
 
   pthread_exit(NULL);
 }
