@@ -13,7 +13,7 @@ using namespace std;
 #define WEIGHT_FILE "weights.txt"
 #define DEVIDE_NUMBER 32768
 
-// VALUES
+// GLOLBAL VALUES
 double BIAS;
 vector<double> WEIGHTS;
 vector<vector<double> > INPUTS;
@@ -89,7 +89,6 @@ vector<double> weight_parser(vector<string> store_weight) {
 		int_weight_values[i] /= DEVIDE_NUMBER;
 	}
 
-
 	// CHECK WEIGHTS
 	// cout << "WIGHTTS : \n\n";
 	// for(int i = 0; i < int_weight_values.size(); i++) {
@@ -97,7 +96,6 @@ vector<double> weight_parser(vector<string> store_weight) {
 	// }
 	// cout << endl;
 	// cout << "--------------------------------------------\n";
-
 
 	return int_weight_values;
 }
@@ -113,9 +111,6 @@ void *read_inputs(void* arg) {
 	string line;
 	vector<string> store_input;
 	vector<vector<double> > number_inputs;
-
-	// struct Values *my_value = (struct Values*)values;
-
 	input_file.open(INPUT_FILE);
 	if (!input_file) {
     cerr << "Unable to open file " << INPUT_FILE << endl;
@@ -128,8 +123,6 @@ void *read_inputs(void* arg) {
 	number_inputs = input_parser(store_input);
 
 	INPUTS = number_inputs;
-
-	// my_value->INPUTS = number_inputs;
 
 	input_file.close();
 	 
@@ -158,17 +151,10 @@ void *read_weights(void *arg) {
 
 	bias = bias_parser(store_weight[2]) / DEVIDE_NUMBER;
 
-
 	WEIGHTS = weights;
 	BIAS = bias;
 
-	// cout << "bias : ";
-	// cout << bias << endl;
-	// cout << "--------------------------------------------\n";
-
-
 	weight_file.close();
-  // cout << BIAS << endl;
 
 	pthread_exit(NULL);	
 }
@@ -189,7 +175,6 @@ int main(int argc, char const *argv[]) {
   inputs_thread_err = pthread_create(&inputs_thread, NULL, read_inputs, NULL);
   weights_thread_err = pthread_create(&weights_thread, NULL, read_weights, NULL);
 
-
   if(inputs_thread_err != 0 || weights_thread_err != 0) {
 		cout << "Error: inputs_thread() or weights_thread() failed\n";
 		exit(EXIT_FAILURE);
@@ -208,6 +193,4 @@ int main(int argc, char const *argv[]) {
 	// }
 
   pthread_exit(NULL);
-  
-
 }

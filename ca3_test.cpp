@@ -16,7 +16,7 @@ using namespace std;
 #define PI 3.14
 #define OUTPUT_FILE "output_test.txt"
 
-// VALUES
+// GLOBAL VALUES
 double BIAS;
 vector<double> WEIGHTS;
 vector<vector<double> > INPUTS;
@@ -58,7 +58,6 @@ vector<vector<double> > input_parser(vector<string> store_input) {
 		}
 		int_inputs_table.push_back(row);
 	}
-
 
 	for(int i = 0; i < int_inputs_table.size(); i++) {
 		for(int j = 0; j < int_inputs_table[i].size(); j++) {
@@ -130,9 +129,7 @@ void read_weights() {
 	}
 
 	weights = weight_parser(store_weight);
-
 	bias = bias_parser(store_weight[2]) / DEVIDE_NUMBER;
-
 
 	WEIGHTS = weights;
 	BIAS = bias;
