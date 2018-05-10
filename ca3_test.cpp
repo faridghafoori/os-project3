@@ -6,12 +6,15 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 using namespace std;
 
 #define INPUT_FILE "inputs.txt"
 #define WEIGHT_FILE "weights.txt"
 #define DEVIDE_NUMBER 32768
+#define PI 3.14
+#define OUTPUT_FILE "output_test.txt"
 
 // VALUES
 double BIAS;
@@ -56,23 +59,12 @@ vector<vector<double> > input_parser(vector<string> store_input) {
 		int_inputs_table.push_back(row);
 	}
 
+
 	for(int i = 0; i < int_inputs_table.size(); i++) {
 		for(int j = 0; j < int_inputs_table[i].size(); j++) {
 			int_inputs_table[i][j] /= DEVIDE_NUMBER;
 		}
 	}
-
-	// INPUT CHECK 
-	// cout << "INPUTS : \n\n";
-	// for(int i = 0; i < int_inputs_table.size(); i++) {
-	// 	cout << "Line number [ " << i+1 << " ] : \n"; 
-	// 	for(int j = 0; j < int_inputs_table[i].size(); j++) {
-	// 		cout << int_inputs_table[i][j] << " ";
-	// 	}
-	// 	cout << "\n\n";
-	// }
-	// cout << "--------------------------------------------\n";
-
 	return int_inputs_table;
 }
 
@@ -88,17 +80,6 @@ vector<double> weight_parser(vector<string> store_weight) {
 	for(int i = 0; i < int_weight_values.size(); i++) {
 		int_weight_values[i] /= DEVIDE_NUMBER;
 	}
-
-
-	// CHECK WEIGHTS
-	// cout << "WIGHTTS : \n\n";
-	// for(int i = 0; i < int_weight_values.size(); i++) {
-	// 	cout << int_weight_values[i] << " ";
-	// }
-	// cout << endl;
-	// cout << "--------------------------------------------\n";
-
-
 	return int_weight_values;
 }
 
@@ -108,13 +89,11 @@ double bias_parser(string bias_value) {
 	return bias = string_to_int(a);
 }
 
-void *read_inputs(void* arg) {
+void read_inputs() {
 	ifstream input_file;
 	string line;
 	vector<string> store_input;
 	vector<vector<double> > number_inputs;
-
-	// struct Values *my_value = (struct Values*)values;
 
 	input_file.open(INPUT_FILE);
 	if (!input_file) {
@@ -129,14 +108,10 @@ void *read_inputs(void* arg) {
 
 	INPUTS = number_inputs;
 
-	// my_value->INPUTS = number_inputs;
-
 	input_file.close();
-	 
- 	pthread_exit(NULL);
 }
 
-void *read_weights(void *arg) {
+void read_weights() {
 	ifstream weight_file;
 	string line;
 	vector<string> store_weight;
@@ -162,52 +137,40 @@ void *read_weights(void *arg) {
 	WEIGHTS = weights;
 	BIAS = bias;
 
-	// cout << "bias : ";
-	// cout << bias << endl;
-	// cout << "--------------------------------------------\n";
-
-
 	weight_file.close();
-  // cout << BIAS << endl;
-
-	pthread_exit(NULL);	
 }
 
-void *middle_process(void *arg) {
-	cout << BIAS << endl;
+vector<double> process_answer() {
+	vector<double> sum;
+	vector<double> result;
+  for(int i = 0; i < INPUTS.size(); i++) {
+		double a = 0;
+  	for(int j = 0; j < INPUTS[i].size(); j++) {
+  		a += WEIGHTS[j] * INPUTS[i][j];
+  	}
+  	sum.push_back(a);
+  }
+
+  for(int i = 0; i < sum.size(); i++) {
+  	sum[i] += BIAS;
+  	result.push_back(atan (sum[i]));
+  }
+  return result;
+}
+
+void generate_output(vector<double> result) {
+  ofstream output;
+  output.open(OUTPUT_FILE);
+  for(int i = 0; i < result.size(); i++) {
+  	output << result[i] << endl;
+  }
+  output.close();
 }
 
 int main(int argc, char const *argv[]) {
-  pthread_t inputs_thread, weights_thread;
-  int n;
-  cout << "Please enter number of middle threads : ";
-  cin >> n;
-  pthread_t middle_threads[n];
-
-  int inputs_thread_err, weights_thread_err;
-
-  inputs_thread_err = pthread_create(&inputs_thread, NULL, read_inputs, NULL);
-  weights_thread_err = pthread_create(&weights_thread, NULL, read_weights, NULL);
-
-
-  if(inputs_thread_err != 0 || weights_thread_err != 0) {
-		cout << "Error: inputs_thread() or weights_thread() failed\n";
-		exit(EXIT_FAILURE);
-	}
-
-	pthread_join(inputs_thread, NULL);
-	pthread_join(weights_thread, NULL);
-
-	for(int i = 0; i < n; i++) {
-		pthread_create(&middle_threads[i], NULL, middle_process, NULL);
-	}
-
-
-	// for(int i = 0; i < n; i++) {
-	// 	pthread_join(middle_threads[i], NULL);
-	// }
-
-  pthread_exit(NULL);
-  
-
+	vector<double> result;
+  read_inputs();
+  read_weights();
+  result = process_answer();
+  generate_output(result);
 }
